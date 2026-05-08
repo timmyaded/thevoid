@@ -1,4 +1,4 @@
-# Inkwell v2 — Social Blogging Platform
+# The Void   — Social Blogging Platform
 
 A full-featured social blog built with Node.js, Express.js, EJS, and MongoDB.
 
