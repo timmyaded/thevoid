@@ -1,0 +1,95 @@
+<%- include('../partials/header', { pageTitle: post.title, categories, activeCategory: post.category }) %>
+
+<div class="post-page">
+  <div class="post-page-inner">
+
+    <!-- Post -->
+    <article class="article">
+      <div class="article-meta-top">
+        <a href="/feed/<%= post.category.toLowerCase() %>" class="post-tag"><%= post.category %></a>
+        <span class="meta-sep">·</span>
+        <span class="post-read-time"><%= post.readTime %></span>
+      </div>
+
+      <h1 class="article-title"><%= post.title %></h1>
+
+      <div class="article-byline">
+        <a href="/profile/<%= post.author.username %>" class="author-chip">
+          <span class="author-avatar lg"><%= post.author.username.charAt(0).toUpperCase() %></span>
+          <div>
+            <span class="author-name"><%= post.author.username %></span>
+            <span class="post-date"><%= new Date(post.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) %></span>
+          </div>
+        </a>
+
+        <% if (currentUserId && post.author._id.toString() === currentUserId.toString()) { %>
+          <div class="article-owner-actions">
+            <a href="/posts/<%= post._id %>/edit" class="action-btn">Edit</a>
+            <form action="/posts/<%= post._id %>/delete" method="POST" class="inline-form">
+              <button class="action-btn danger" onclick="return confirm('Delete this post?')">Delete</button>
+            </form>
+          </div>
+        <% } %>
+      </div>
+
+      <div class="article-divider"></div>
+
+      <div class="article-body">
+        <% post.content.split('\n').forEach(para => { %>
+          <% if (para.trim()) { %><p><%= para %></p><% } %>
+        <% }) %>
+      </div>
+    </article>
+
+    <!-- Comments -->
+    <section class="comments-section">
+      <h2 class="comments-title">
+        Responses <span class="comments-count"><%= comments.length %></span>
+      </h2>
+
+      <% if (currentUsername) { %>
+        <form action="/comments" method="POST" class="comment-form">
+          <input type="hidden" name="postId" value="<%= post._id %>" />
+          <div class="comment-input-wrap">
+            <span class="comment-avatar"><%= currentUsername.charAt(0).toUpperCase() %></span>
+            <textarea name="content" placeholder="What are your thoughts?" rows="3" required></textarea>
+          </div>
+          <div class="comment-form-footer">
+            <button type="submit" class="btn-primary">Respond</button>
+          </div>
+        </form>
+      <% } else { %>
+        <div class="comment-login-prompt">
+          <a href="/login">Sign in</a> to leave a response.
+        </div>
+      <% } %>
+
+      <% if (comments.length === 0) { %>
+        <p class="no-comments">No responses yet. Be the first!</p>
+      <% } else { %>
+        <div class="comment-list">
+          <% comments.forEach(comment => { %>
+            <div class="comment-item">
+              <div class="comment-header">
+                <a href="/profile/<%= comment.author.username %>" class="author-chip">
+                  <span class="author-avatar"><%= comment.author.username.charAt(0).toUpperCase() %></span>
+                  <span class="author-name"><%= comment.author.username %></span>
+                </a>
+                <span class="comment-date"><%= new Date(comment.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %></span>
+                <% if (currentUserId && comment.author._id.toString() === currentUserId.toString()) { %>
+                  <form action="/comments/<%= comment._id %>/delete" method="POST" class="inline-form ml-auto">
+                    <button class="action-btn danger xs">Delete</button>
+                  </form>
+                <% } %>
+              </div>
+              <p class="comment-body"><%= comment.content %></p>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

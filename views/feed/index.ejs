@@ -1,0 +1,137 @@
+<%- include('../partials/header', { pageTitle: activeCategory || 'Feed', categories, activeCategory }) %>
+
+<% if (!activeCategory) { %>
+  <section class="void-hero">
+    <div class="void-orb"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">A space to be heard</p>
+      <h1 class="hero-title">The Void</h1>
+      <p class="hero-tagline">Words that echo forever.</p>
+      <% if (currentUsername) { %>
+        <a href="/posts/new" class="btn-write-hero">Start writing &rarr;</a>
+      <% } else { %>
+        <a href="/register" class="btn-write-hero">Join the conversation &rarr;</a>
+      <% } %>
+    </div>
+  </section>
+<% } else { %>
+  <div class="category-hero">
+    <div class="category-hero-inner">
+      <p class="category-hero-label">Topic</p>
+      <h1 class="category-hero-title"><%= activeCategory %></h1>
+    </div>
+  </div>
+<% } %>
+
+<div class="void-filter-bar">
+  <div class="void-filter-inner">
+    <a href="/feed" class="filter-pill <%= !activeCategory ? 'active' : '' %>">All</a>
+    <% categories.forEach(cat => { %>
+      <a href="/feed/<%= cat.toLowerCase() %>"
+         class="filter-pill <%= activeCategory === cat ? 'active' : '' %>">
+        <%= cat %>
+      </a>
+    <% }) %>
+  </div>
+</div>
+
+<div class="void-feed-wrapper">
+
+  <div class="void-feed-header">
+    <span class="void-feed-title">
+      <% if (activeCategory) { %><%= activeCategory %><% } else { %>Latest stories<% } %>
+    </span>
+    <% if (currentUsername) { %>
+      <a href="/posts/new" class="void-write-inline">+ Write a post</a>
+    <% } %>
+  </div>
+
+  <% if (posts.length === 0) { %>
+    <div class="void-empty">
+      <div class="void-empty-glyph">∅</div>
+      <p>Nothing here yet.<% if (currentUsername) { %><br>You could be the first to write something.<% } %></p>
+      <% if (currentUsername) { %>
+        <a href="/posts/new" class="btn-write-hero" style="margin-top:0.5rem">Start writing &rarr;</a>
+      <% } %>
+    </div>
+  <% } else { %>
+    <div class="void-post-list">
+      <% posts.forEach((post, i) => { %>
+        <%
+          const likeCount     = post.likes ? post.likes.length : 0;
+          const commentCount  = post.commentCount || 0;
+          const userLiked     = currentUserId && post.likes
+            ? post.likes.some(id => id.toString() === currentUserId.toString())
+            : false;
+          const hasCover = !!post.coverImageType;
+        %>
+        <article class="void-post <%= hasCover ? 'has-cover' : '' %>"
+                 style="animation-delay: <%= i * 55 %>ms"
+                 onclick="window.location='/posts/<%= post._id %>'">
+
+          <div class="void-post-index"><%= String(i + 1).padStart(2, '0') %></div>
+
+          <div class="void-post-body">
+            <!-- Author row with avatar -->
+            <div class="void-post-meta">
+              <a href="/profile/<%= post.author.username %>" class="void-author-link" onclick="event.stopPropagation()">
+                <span class="void-author-avatar"><%= post.author.username.charAt(0).toUpperCase() %></span>
+                <span class="void-author"><%= post.author.username %></span>
+              </a>
+              <span class="void-dot">&middot;</span>
+              <span class="void-date">
+                <%= new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+              </span>
+            </div>
+
+            <h2 class="void-post-title">
+              <a href="/posts/<%= post._id %>" onclick="event.stopPropagation()"><%= post.title %></a>
+            </h2>
+
+            <p class="void-post-excerpt">
+              <%= post.content.substring(0, 160) %><%= post.content.length > 160 ? '…' : '' %>
+            </p>
+
+            <!-- Activity + category row -->
+            <div class="void-post-activity">
+              <% if (currentUsername) { %>
+                <button class="activity-like-btn <%= userLiked ? 'liked' : '' %>"
+                        data-id="<%= post._id %>"
+                        onclick="event.stopPropagation()"
+                        aria-label="Like post">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="<%= userLiked ? 'currentColor' : 'none' %>" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                  <span class="like-count"><%= likeCount %></span>
+                </button>
+              <% } else { %>
+                <span class="activity-stat">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                  <%= likeCount %>
+                </span>
+              <% } %>
+              <a href="/posts/<%= post._id %>#comments" class="activity-stat" onclick="event.stopPropagation()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <%= commentCount %>
+              </a>
+              <span class="activity-sep"></span>
+              <a href="/feed/<%= post.category.toLowerCase() %>" class="void-category-inline" onclick="event.stopPropagation()">
+                <%= post.category %>
+              </a>
+              <span class="void-read-time-inline"><%= post.readTime %></span>
+            </div>
+          </div>
+
+          <!-- Cover image (optional) -->
+          <% if (hasCover) { %>
+            <div class="void-post-cover">
+              <img src="/posts/<%= post._id %>/image" alt="" loading="lazy" onerror="this.parentElement.style.display='none'">
+            </div>
+          <% } %>
+
+        </article>
+      <% }) %>
+    </div>
+  <% } %>
+
+</div>
+
+<%- include('../partials/footer') %>

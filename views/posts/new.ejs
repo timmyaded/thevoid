@@ -1,0 +1,46 @@
+<%- include('../partials/header', { pageTitle: 'Write', categories, activeCategory: null }) %>
+
+<div class="write-page">
+  <div class="write-inner">
+    <h1 class="write-title">New Post</h1>
+
+    <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+    <form action="/posts" method="POST" enctype="multipart/form-data" class="post-form">
+      <div class="form-group">
+        <input type="text" name="title" placeholder="Your post title…" required class="title-input" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group flex-1">
+          <label>Category</label>
+          <select name="category">
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat %>"><%= cat %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="word-count-display">
+          <span id="wordCount">0</span> words
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Cover image <span class="optional">(optional · max 5MB)</span></label>
+        <input type="file" name="coverImage" accept="image/*" class="file-input" />
+      </div>
+
+      <div class="form-group">
+        <label>Your story</label>
+        <textarea name="content" id="content" rows="18" placeholder="Write something the world needs to read…" required></textarea>
+      </div>
+
+      <div class="form-actions">
+        <a href="/feed" class="btn-ghost">Discard</a>
+        <button type="submit" class="btn-primary">Publish</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

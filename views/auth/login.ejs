@@ -1,0 +1,27 @@
+<%- include('../partials/header', { pageTitle: 'Sign In' }) %>
+
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-brand">The Void</div>
+    <h1 class="auth-title">Welcome back</h1>
+    <p class="auth-sub">Sign in to continue writing and reading.</p>
+
+    <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+    <form action="/login" method="POST" class="auth-form">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="you@example.com" required />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Your password" required />
+      </div>
+      <button type="submit" class="btn-primary full-width">Sign in</button>
+    </form>
+
+    <p class="auth-switch">Don't have an account? <a href="/register">Get started</a></p>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
